@@ -1,61 +1,41 @@
+local busted = require "busted"
+local it = busted.it
+local assert = busted.assert
 
-local kconfig = require "kconfig"
-
-local test_file_name = "spec/test_config"
-local test_string = [[Lua test string with quotes: ", ']]
-
-describe("#load", function()
-           it("return type of load(<file>) is table", function()
-                local f = io.open(test_file_name)
-                assert.are.equal(type(kconfig.load(f)), "table")
-                f:close()
-           end)
-           it("return type of load(<filename>) is table", function()
-                assert.are.equal(type(kconfig.load(test_file_name)), "table")
-           end)
-
+return function(t)
            it("\"VAR is not set\" defines name", function()
-                local t = kconfig.load(test_file_name)
                 assert.are.equal("boolean", type(t.lua_bool_false))
            end)
            it("\"VAR is not set\" returns false", function()
-                local t = kconfig.load(test_file_name)
                 assert.is_false(t.lua_bool_false)
            end)
 
            it("\"VAR=y\" returns boolean", function()
-                local t = kconfig.load(test_file_name)
                 assert.are.equal("boolean", type(t.lua_bool_true))
            end)
            it("\"VAR=y\" returns true", function()
-                local t = kconfig.load(test_file_name)
                 assert.is_true(t.lua_bool_true)
            end)
 
            it("\"VAR=42\" returns number", function()
-                local t = kconfig.load(test_file_name)
                 assert.are.equal("number", type(t.lua_int))
            end)
            it("\"VAR=42\" returns 42", function()
-                local t = kconfig.load(test_file_name)
                 assert.are.equal(42, t.lua_int)
            end)
 
            it("\"VAR=0x42\" returns number", function()
-                local t = kconfig.load(test_file_name)
                 assert.are.equal("number", type(t.lua_hex))
            end)
            it("\"VAR=0x42\" returns 66 (0x42)", function()
-                local t = kconfig.load(test_file_name)
                 assert.are.equal(0x42, t.lua_hex)
            end)
 
            it("\"VAR=<string>\" returns string", function()
-                local t = kconfig.load(test_file_name)
                 assert.are.equal("string", type(t.lua_string))
            end)
            it("\"VAR=<string>\" returns <string>", function()
-                local t = kconfig.load(test_file_name)
+                local test_string = [[Lua test string with quotes: ", ']]
                 assert.are.equal(test_string, t.lua_string)
            end)
-end)
+end

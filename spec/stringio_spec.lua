@@ -1,7 +1,9 @@
-
-require "pl" -- penlight library
+require "pl" -- penlight library (for stringio)
 
 local kconfig = require "kconfig"
+local kload = kconfig.load
+
+local load_tests = require "spec/load_tests"
 
 local test_config = [[
 LUA_HAVE_DOT_CONFIG=y
@@ -13,11 +15,26 @@ LUA_HEX=0x42
 LUA_STRING="Lua test string with quotes: \", '"
 ]]
 
-local test_string = [[Lua test string with quotes: ", ']]
+describe("#load #stringio", function()
 
-describe("#load", function()
+           local t = {}
+
+           setup(function()
+               t = kload(stringio.open(test_config))
+           end)
+
+           teardown(function()
+               t = nil
+           end)
+
            it("return type of load(<stringio>) is table", function()
                 local sio = stringio.open(test_config)
-                assert.are.equal(type(kconfig.load(sio)), "table")
+                assert.are.equal(type(kload(sio)), "table")
+                sio = nil
            end)
+
+           describe("#types", function()
+                      load_tests(t)
+           end)
+
 end)
