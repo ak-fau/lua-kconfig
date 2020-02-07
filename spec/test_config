@@ -1,0 +1,11 @@
+#
+# Automatically generated file; DO NOT EDIT.
+# Lua Kconfig Experiments
+#
+LUA_HAVE_DOT_CONFIG=y
+LUA_INTERPRETER="/usr/bin/lua"
+LUA_BOOL_TRUE=y
+# LUA_BOOL_FALSE is not set
+LUA_INT=42
+LUA_HEX=0x42
+LUA_STRING="Lua test string with quotes: \", '"
