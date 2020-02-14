@@ -8,7 +8,9 @@ local match = string.match
 local lower = string.lower
 local gsub = string.gsub
 
-function M.load(f)
+function M.load(f, prefix)
+
+  prefix = prefix and "^" .. lower(prefix) .. "_*" or ""
 
   if type(f) == "string" then
     f, err = io.open(f, "r")
@@ -23,22 +25,31 @@ function M.load(f)
     local name, str = match(l, "^([%w+_?]+)=\"(.+)\"$")
     if name and str then
       name = lower(name)
-      str = gsub(str, '\\"', '"')
-      t[name] = str
+      if match(name, prefix) then
+        name = gsub(name, prefix, "")
+        str = gsub(str, '\\"', '"')
+        t[name] = str
+      end
     else
       local name = match(l, "^# ([%w+_?]+) is not set$")
       if name then
         name = lower(name)
-        t[name] = false
+        if match(name, prefix) then
+          name = gsub(name, prefix, "")
+          t[name] = false
+        end
       else
         local name, value = match(l, "^([%w+_?]+)=(.+)$")
         if name and value then
           name = lower(name)
-          value = lower(value)
-          if value == 'y' then value = true end
-          local v = tonumber(value)
-          if v then value = v end
-          t[name] = value
+          if match(name, prefix) then
+            name = gsub(name, prefix, "")
+            value = lower(value)
+            if value == 'y' then value = true end
+            local v = tonumber(value)
+            if v then value = v end
+            t[name] = value
+          end
         end
       end
     end
