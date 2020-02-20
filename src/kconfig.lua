@@ -7,6 +7,7 @@ local M = {}
 local match = string.match
 local lower = string.lower
 local gsub = string.gsub
+local gmatch = string.gmatch
 
 function M.load(f, prefix)
 
@@ -56,6 +57,41 @@ function M.load(f, prefix)
   end
 
   return t
+end
+
+function M.hierarchy(t)
+  local h = {}
+
+  for k, v in pairs(t) do
+    local e = h
+    local path = {}
+
+    for name in gmatch(k .. "_", "(.-)_") do
+      path[#path + 1] = name
+    end
+
+    for i, name in ipairs(path) do
+      if i == #path then
+        if type(e[path[i]]) == "nil" then
+          e[path[i]] = v
+        else
+          error("Cannot convert to hierarchical path: " .. k .. ", at step " .. i)
+        end
+      else
+        if type(e[path[i]]) == "nil" then
+          e[path[i]] = {}
+          e = e[path[i]]
+        elseif type(e[path[i]]) == "table" then
+          e = e[path[i]]
+        else
+          error("Cannot convert to hierarchical path: " .. k .. ", at step " .. i)
+        end
+      end
+    end
+
+  end
+
+  return h
 end
 
 return M
