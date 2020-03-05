@@ -14,7 +14,7 @@ LUA_HEX=0x42
 LUA_STRING="Lua test string with quotes: \", '"
 ]]
 
-describe("#hierarchy", function()
+describe("#hierarchy:", function()
 
            local t = {}
 
@@ -48,6 +48,18 @@ describe("#hierarchy", function()
            it("Second level #hex", function()
                 assert.is_equal("table", type(t.lua))
                 assert.is_equal(0x42, t.lua.hex)
+           end)
+
+end)
+
+describe("Incorrect #hierarchy:", function()
+
+           it("Expected #error with {a=1, a_b=2}", function()
+                t = kload(stringio.open([[
+A=1
+A_B=2
+]]))
+                assert.has.errors(function() hierarchy(t) end)
            end)
 
 end)
