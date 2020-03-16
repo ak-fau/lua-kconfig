@@ -3,12 +3,11 @@
 -- configuration scripts
 --
 
-local M = {}
-
 local match = string.match
 local lower = string.lower
 local upper = string.upper
 local gsub = string.gsub
+local len = string.len
 local gmatch = string.gmatch
 local format = string.format
 
@@ -47,6 +46,8 @@ local function kv2string(k, v, h, p)
   end
 end
 
+local flat
+
 local function config2string(t)
 
   local s = {}
@@ -54,6 +55,10 @@ local function config2string(t)
   local _hex = mt._hex or {}
   local _ord = mt._ord
   local _prefix = mt._prefix
+
+  if mt._hierarchical then
+    t = flat(t)
+  end
 
   if _ord then
     for _, k in ipairs(_ord) do
@@ -70,7 +75,7 @@ local function config2string(t)
   return concat(s, "\n")
 end
 
-function M.load(f, prefix)
+local function load_config(f, prefix)
 
   prefix = prefix and lower(prefix) or ""
   local prefix_pattern = "^" .. prefix .. "_*"
@@ -135,8 +140,16 @@ function M.load(f, prefix)
   return t
 end
 
-function M.hierarchy(t)
+local function hierarchy(t)
   local h = {}
+  local mh = {}
+  local mt = getmetatable(t) or {}
+  mh._hierarchical = true
+  mh.__tostring = mt.__tostring
+  mh._prefix = mt._prefix
+  mh._hex = mt._hex
+  mh._ord = mt._ord
+  setmetatable(h, mh)
 
   for k, v in pairs(t) do
     local e = h
@@ -170,9 +183,38 @@ function M.hierarchy(t)
   return h
 end
 
-function M.flat(h)
-  local t = {}
+local function _flat(t, h, p)
+  p = p or ""
+  if len(p) > 0 then
+    p = p .. "_"
+  end
+
+  for k, v in pairs(h) do
+    if type(v) == "table" then
+      _flat(t, v, p..k)
+    else
+      t[p..k] = v
+    end
+  end
+
   return t
 end
 
-return M
+flat = function(h)
+  local t = {}
+  local mt = {}
+  local mh = getmetatable(h) or {}
+  mt.__tostring = mh.__tostring
+  mt._prefix = mh._prefix
+  mt._hex = mh._hex
+  mt._ord = mh._ord
+  setmetatable(t, mt)
+
+  return _flat(t, h)
+end
+
+return {
+  load = load_config,
+  hierarchy = hierarchy,
+  flat = flat
+}
