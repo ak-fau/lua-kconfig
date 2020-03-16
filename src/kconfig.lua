@@ -170,4 +170,9 @@ function M.hierarchy(t)
   return h
 end
 
+function M.flat(h)
+  local t = {}
+  return t
+end
+
 return M
