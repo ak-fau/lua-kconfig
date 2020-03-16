@@ -23,6 +23,11 @@ local function test_bool_false()
 ]]
 end
 
+local function test_integer()
+  test_x [[LUA_INT=42
+]]
+end
+
 local function test_full()
   local test_config = [[
 LUA_HAVE_DOT_CONFIG=y
@@ -42,5 +47,6 @@ describe("#tostring", function()
            it("#string", test_string)
            it("#boolean #true", test_bool_true)
            it("#boolean #false", test_bool_false)
+           it("#int", test_integer)
            it("#full config with all types", test_full)
 end)
