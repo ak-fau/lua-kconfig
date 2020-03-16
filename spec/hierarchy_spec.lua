@@ -31,6 +31,20 @@ describe("#hierarchy:", function()
                 assert.is_equal("table", type(t))
            end)
 
+           it("Metatable is preserved through hierarchy() call", function()
+                local t = kload(stringio.open(test_config))
+                local h = hierarchy(t)
+                local mt = getmetatable(t) or {"getmetatable(t)"}
+                local mh = getmetatable(h) or {"getmetatable{h)"}
+                mh._hierarchical = nil
+                assert.are_same(mt, mh)
+           end)
+
+           it("Metatable has a _hierarchical flag true", function()
+                local mt = getmetatable(t) or {}
+                assert(mt._hierarchical)
+           end)
+
            it("An element 'lua' on top level is a table", function()
                 assert.is_equal("table", type(t.lua))
            end)
