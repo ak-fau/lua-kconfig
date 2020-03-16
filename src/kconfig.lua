@@ -18,34 +18,47 @@ local function string_escape(s)
   return '"' .. gsub(s, '"', '\\"') .. '"'
 end
 
+local function kv2string(k, v, h)
+  local kl = k
+  k = upper(kl)
+  if type(v) == "string" then
+    return k .. "=" ..  string_escape(v)
+  elseif type(v) == "boolean" then
+    if v then
+      return k .. "=y"
+    else
+      return "# " .. k .. " is not set"
+    end
+  elseif type(v) == "number" then
+    if h[kl] then
+      return k .. "=" .. format("0x%x", v)
+    else
+      return k .. "=" .. tostring(v)
+    end
+  else
+    error("Lua kconfig: variable: '" .. kl .. "' of unsupported type: " .. type(v))
+  end
+end
+
 local function config2string(t)
 
   local s = {}
   local mt = getmetatable(t) or {}
   local _hex = mt._hex or {}
+  local _ord = mt._ord
 
-  for k, v in pairs(t) do
-    local kl = k
-    k = upper(kl)
-    if type(v) == "string" then
-      s[#s+1] = k .. "=" ..  string_escape(v)
-    elseif type(v) == "boolean" then
-      if v then
-        s[#s+1] = k .. "=y"
-      else
-        s[#s+1] = "# " .. k .. " is not set"
-      end
-    elseif type(v) == "number" then
-      if _hex[kl] then
-        s[#s+1] = k .. "=" .. format("0x%x", v)
-      else
-        s[#s+1] = k .. "=" .. tostring(v)
-      end
-    else
-      error("Lua kconfig: variable: '" .. kl .. "' of unsupported type: " .. type(v))
+  if _ord then
+    for _, k in ipairs(_ord) do
+      s[#s+1] = kv2string(k, t[k], _hex)
+    end
+  else
+    for k, v in pairs(t) do
+      s[#s+1] = kv2string(k, v, _hex)
     end
   end
+
   s[#s+1] = "" -- to have EOL after the last line
+
   return concat(s, "\n")
 end
 
@@ -62,8 +75,10 @@ function M.load(f, prefix)
   end
 
   local t = {}
+  local o = {}
   local mt =  {__tostring = config2string,
                _hex = {},
+               _ord = o,
                _prefix = prefix}
   setmetatable(t, mt)
 
@@ -75,6 +90,7 @@ function M.load(f, prefix)
         name = gsub(name, prefix_pattern, "")
         str = gsub(str, '\\"', '"')
         t[name] = str
+        o[#o+1] = name
       end
     else
       local name = match(l, "^# ([%w+_?]+) is not set$")
@@ -83,6 +99,7 @@ function M.load(f, prefix)
         if match(name, prefix_pattern) then
           name = gsub(name, prefix_pattern, "")
           t[name] = false
+          o[#o+1] = name
         end
       else
         local name, value = match(l, "^([%w+_?]+)=(.+)$")
@@ -100,6 +117,7 @@ function M.load(f, prefix)
               value = v
             end
             t[name] = value
+            o[#o+1] = name
           end
         end
       end
