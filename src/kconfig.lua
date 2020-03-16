@@ -18,9 +18,16 @@ local function string_escape(s)
   return '"' .. gsub(s, '"', '\\"') .. '"'
 end
 
-local function kv2string(k, v, h)
+local function kv2string(k, v, h, p)
   local kl = k
-  k = upper(kl)
+
+  if p and p ~= "" then
+    p = upper(p) .. "_"
+  end
+
+  p = p or ""
+  k = p .. upper(kl)
+
   if type(v) == "string" then
     return k .. "=" ..  string_escape(v)
   elseif type(v) == "boolean" then
@@ -46,14 +53,15 @@ local function config2string(t)
   local mt = getmetatable(t) or {}
   local _hex = mt._hex or {}
   local _ord = mt._ord
+  local _prefix = mt._prefix
 
   if _ord then
     for _, k in ipairs(_ord) do
-      s[#s+1] = kv2string(k, t[k], _hex)
+      s[#s+1] = kv2string(k, t[k], _hex, _prefix)
     end
   else
     for k, v in pairs(t) do
-      s[#s+1] = kv2string(k, v, _hex)
+      s[#s+1] = kv2string(k, v, _hex, _prefix)
     end
   end
 

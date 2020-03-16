@@ -91,7 +91,7 @@ describe("#tostring #prefix", function()
                end
            end)
 
-           it("#string #debug", test_string)
+           it("#string", test_string)
            it("#boolean #true", test_bool_true)
            it("#boolean #false", test_bool_false)
            it("#int", test_integer)
