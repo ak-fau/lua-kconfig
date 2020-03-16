@@ -3,11 +3,24 @@ require "pl" -- penlight library (for stringio)
 local kconfig = require "kconfig"
 local kload = kconfig.load
 
-local function test_string()
-  local s = [[LUA_STRING="Lua test string with quotes: \", '"
-]]
+local function test_x(s)
   local t = kload(stringio.open(s))
   assert.is_equal(s, tostring(t))
+end
+
+local function test_string()
+  test_x [[LUA_STRING="Lua test string with quotes: \", '"
+]]
+end
+
+local function test_bool_true()
+  test_x [[LUA_BOOL_TRUE=y
+]]
+end
+
+local function test_bool_false()
+  test_x [[# LUA_BOOL_FALSE is not set
+]]
 end
 
 local function test_full()
@@ -27,5 +40,7 @@ end
 
 describe("#tostring", function()
            it("#string", test_string)
+           it("#boolean #true", test_bool_true)
+           it("#boolean #false", test_bool_false)
            it("#full config with all types", test_full)
 end)

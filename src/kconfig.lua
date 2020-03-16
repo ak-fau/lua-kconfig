@@ -22,11 +22,16 @@ local function config2string(t)
   for k, v in pairs(t) do
     k = upper(k)
     if type(v) == "string" then
-      v = string_escape(v)
+      s[#s+1] = k .. "=" ..  string_escape(v)
+    elseif type(v) == "boolean" then
+      if v then
+        s[#s+1] = k .. "=y"
+      else
+        s[#s+1] = "# " .. k .. " is not set"
+      end
     else
-      v = tostring(v)
+      s[#s+1] = k .. "=" .. tostring(v)
     end
-    s[#s+1] = k .. "=" .. v
   end
   s[#s+1] = "" -- to have EOL after the last line
   return concat(s, "\n")
