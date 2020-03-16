@@ -28,6 +28,11 @@ local function test_integer()
 ]]
 end
 
+local function test_hex()
+  test_x [[LUA_HEX=0x42
+]]
+end
+
 local function test_full()
   local test_config = [[
 LUA_HAVE_DOT_CONFIG=y
@@ -48,5 +53,6 @@ describe("#tostring", function()
            it("#boolean #true", test_bool_true)
            it("#boolean #false", test_bool_false)
            it("#int", test_integer)
+           it("#hex", test_hex)
            it("#full config with all types", test_full)
 end)

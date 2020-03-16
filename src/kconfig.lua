@@ -10,6 +10,7 @@ local lower = string.lower
 local upper = string.upper
 local gsub = string.gsub
 local gmatch = string.gmatch
+local format = string.format
 
 local concat = table.concat
 
@@ -18,9 +19,14 @@ local function string_escape(s)
 end
 
 local function config2string(t)
+
   local s = {}
+  local mt = getmetatable(t) or {}
+  local _hex = mt._hex or {}
+
   for k, v in pairs(t) do
-    k = upper(k)
+    local kl = k
+    k = upper(kl)
     if type(v) == "string" then
       s[#s+1] = k .. "=" ..  string_escape(v)
     elseif type(v) == "boolean" then
@@ -29,8 +35,14 @@ local function config2string(t)
       else
         s[#s+1] = "# " .. k .. " is not set"
       end
+    elseif type(v) == "number" then
+      if _hex[kl] then
+        s[#s+1] = k .. "=" .. format("0x%x", v)
+      else
+        s[#s+1] = k .. "=" .. tostring(v)
+      end
     else
-      s[#s+1] = k .. "=" .. tostring(v)
+      error("Lua kconfig: variable: '" .. kl .. "' of unsupported type: " .. type(v))
     end
   end
   s[#s+1] = "" -- to have EOL after the last line
@@ -50,9 +62,10 @@ function M.load(f, prefix)
   end
 
   local t = {}
-  setmetatable(t, {__tostring = config2string,
-                   _hex = {},
-                   _prefix = prefix})
+  local mt =  {__tostring = config2string,
+               _hex = {},
+               _prefix = prefix}
+  setmetatable(t, mt)
 
   for l in f:lines() do
     local name, str = match(l, "^([%w+_?]+)=\"(.+)\"$")
@@ -80,7 +93,12 @@ function M.load(f, prefix)
             value = lower(value)
             if value == 'y' then value = true end
             local v = tonumber(value)
-            if v then value = v end
+            if v then
+              if match(value, "^0x") then
+                mt._hex[name] = true
+              end
+              value = v
+            end
             t[name] = value
           end
         end
