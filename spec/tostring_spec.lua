@@ -63,6 +63,63 @@ describe("#tostring", function()
            it("#full config with all types", test_full)
 end)
 
+describe("#tostring #noord", function()
+
+           setup(function()
+               test_x = function(s)
+                 local t = kload(stringio.open(s))
+                 local mt = getmetatable(t) or {}
+                 mt._ord = nil
+                 assert.is_equal(s, tostring(t))
+               end
+           end)
+
+           it("#string", test_string)
+           it("#boolean #true", test_bool_true)
+           it("#boolean #false", test_bool_false)
+           it("#int", test_integer)
+           it("#hex", test_hex)
+end)
+
+describe("#tostring #prefix #noord", function()
+
+           setup(function()
+               test_x = function(s)
+                 local prefix = "lua"
+                 local t = kload(stringio.open(s), prefix)
+                 local mt = getmetatable(t) or {}
+                 mt._ord = nil
+                 assert.is_equal(s, tostring(t))
+               end
+           end)
+
+           it("#string", test_string)
+           it("#boolean #true", test_bool_true)
+           it("#boolean #false", test_bool_false)
+           it("#int", test_integer)
+           it("#hex", test_hex)
+end)
+
+describe("#tostring #hierarchy #prefix #noord", function()
+
+           setup(function()
+               test_x = function(s)
+                 local prefix = "lua"
+                 local t = kload(stringio.open(s), prefix)
+                 t = hierarchy(t)
+                 local mt = getmetatable(t) or {}
+                 mt._ord = nil
+                 assert.is_equal(s, tostring(t))
+               end
+           end)
+
+           it("#string", test_string)
+           it("#boolean #true", test_bool_true)
+           it("#boolean #false", test_bool_false)
+           it("#int", test_integer)
+           it("#hex", test_hex)
+end)
+
 describe("#tostring #hierarchy", function()
 
            setup(function()
