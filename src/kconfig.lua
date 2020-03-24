@@ -2,6 +2,8 @@
 -- Lua interface to .config-format files created by Linux kernel
 -- configuration scripts
 --
+-- Copyright (c) 2020 Anton Kuzmin <anton.kuzmin@cs.fau.de>
+-- This module is free software released under the MIT License.
 
 local match = string.match
 local lower = string.lower
