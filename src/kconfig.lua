@@ -217,6 +217,7 @@ end
 
 return {
   load = load_config,
+  tostring = config2string,
   hierarchy = hierarchy,
   flat = flat
 }

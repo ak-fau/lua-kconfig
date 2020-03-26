@@ -1,9 +1,9 @@
 rockspec_format = "3.0"
 package = "kconfig"
-version = "0.1-1"
+version = "0.2.0-1"
 source = {
    url = "https://github.com/ak-fau/lua-kconfig/",
-   tag = "v0.1"
+   tag = "v0.2.0"
 }
 
 description = {
